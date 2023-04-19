@@ -1,12 +1,16 @@
-'use strict'
+"use strict"
 
-const search = document.getElementById('search-input')
+const example = document.getElementById("example-container")
 const sentence = document.getElementById("sentence-display")
 const grid = document.getElementById("tiles-grid")
 
 let data;
 let user;
-let current;
+
+let folderNumber;
+let sentenceNumber;
+
+let answerString;
 
 let sentenceArray = []
 
@@ -27,11 +31,11 @@ function loadSettings() {
             name: "",
             columns: 4,
             rows: 4,
-            firstWords: [224,728,673,274,485,504,445,66,101,289,187,48,521,302,491,21],
+            firstWords: [],
         }
         user.name = prompt("what is your name?")
     }
-    data[0].array = user.firstWords
+    user.firstWords = data[0].array
     data[549].text = user.name
     document.getElementById("rows-select").value = user.rows
     document.getElementById("columns-select").value = user.columns
@@ -39,7 +43,22 @@ function loadSettings() {
 
 loadSettings()
 changeDisplay()
-loadGrid(data[0].array, 0)
+loadGrid(user.firstWords, 0)
+
+function changeDisplay() {
+
+    user.rows = document.getElementById("rows-select").value
+    user.columns = document.getElementById("columns-select").value
+
+    grid.style.gridTemplateRows = `repeat(${user.rows}, ${Math.round(1/user.rows*100)}%)`
+    grid.style.gridTemplateColumns = `repeat(${user.columns}, ${Math.round(1/user.columns*100)}%)`
+
+    if (typeof sentenceArray[sentenceArray.length -1] == "undefined") {
+        loadGrid(data[0].array, 0)
+    } else {
+        loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1])
+    }
+}
 
 function save() {
     let stringify = JSON.stringify(data);
@@ -52,34 +71,41 @@ function save() {
 function searchKeyUp() {
 
     let searchResults = [];
+
+    if ((document.getElementById('search-input').value) == "") {
+        return
+    }
     for (let p = 0; p < data.length; p++) {
-        if (data[p].text.toLowerCase().includes(search.value)) {
+        if (data[p].text.toLowerCase().includes(document.getElementById('search-input').value)) {
             searchResults.push(p)
         }
     }
     loadGrid(searchResults, -1)
 }
 
+function move() {
+    if (event.target.id == "move-down") {
+        sentenceNumber--
+    } else {
+        sentenceNumber++
+    }
+    exampleQuestion(folderNumber)
+}
+
 function back() {
     
-    search.value = ""
-    
-    let last = sentenceArray[sentenceArray.length -1]
-
     if (sentenceArray.length == 0) {
-        return
+        return loadGrid(data[0].array, 0)
+
     } 
 
-    if (data[last].folder == true || data[last].sub) {
-        //
-    } else {
+    let last = sentenceArray[sentenceArray.length -1]
+    if (!data[last].sub) {
         sentence.removeChild(sentence.lastChild)
-    }
-
+    } 
     sentenceArray.pop()
-
     if (sentenceArray.length == 0) {
-        loadGrid(user.firstWords, 0)
+        loadGrid(data[0].array, 0)
     } else {
         loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1]) 
     }
@@ -98,7 +124,6 @@ function clearAll() {
 function home() {
 
     loadGrid(data[0].array, 0)
-    previous = 0
 }
 
 function loadGrid(fromArray, current) {
@@ -123,12 +148,13 @@ function loadGrid(fromArray, current) {
             tileImage.alt = data[fromArray[i]].text
             tile.appendChild(tileImage)
         }
-        if (data[fromArray[i]].sub || data[fromArray[i]].folder == true) {
+        if (data[fromArray[i]].sub) {
             tile.style.backgroundColor = "rgb(253, 238, 217)"
             tile.onclick = function tileClick() {
                 loadGrid(data[this.id].array, this.id)
                 changeOrder(current, this.id)
                 sentenceArray.push(parseInt(this.id))
+                folderCheck(data[this.id])
             }
         } else {
             tile.onclick = function tileClick() {
@@ -136,6 +162,15 @@ function loadGrid(fromArray, current) {
                 changeOrder(current, this.id)
                 sentenceUpdate(this.id)
                 sentenceArray.push(parseInt(this.id))
+
+                let sentenceString = sentenceArray.toString()
+
+                if (sentenceString.includes(answerString)) {
+                    sentenceNumber++
+                    exampleQuestion(folderNumber, current)
+                    alert("nice")
+                    clearAll()
+                }
             }
         }
         grid.appendChild(tile)
@@ -167,9 +202,7 @@ function speak() {
 
     let msg = new SpeechSynthesisUtterance()
     for (let j = 0; j < sentenceArray.length; j++) {
-        if (data[sentenceArray[j]].folder == true || data[sentenceArray[j]].sub) {
-            //
-        } else {
+        if (!data[sentenceArray[j]].sub) {
             msg.text += `${data[sentenceArray[j]].text} `
         }
     }
@@ -209,17 +242,51 @@ function changeOrder(current, id) {
     }
 }
 
-function changeDisplay() {
+function folderCheck(folderID) {
 
-    user.rows = document.getElementById("rows-select").value
-    user.columns = document.getElementById("columns-select").value
-
-    grid.style.gridTemplateRows = `repeat(${user.rows}, ${Math.round(1/user.rows*100)}%)`
-    grid.style.gridTemplateColumns = `repeat(${user.columns}, ${Math.round(1/user.columns*100)}%)`
-
-    if (typeof sentenceArray[sentenceArray.length -1] == "undefined") {
-        loadGrid(data[0].array, 0)
+    if (!folderID.sub.questions) {
+        console.log("folder")
+    } else if (!folderID.sub.answers[0]) {
+        sentenceNumber = 0
+        folderNumber = folderID
+        exampleQuestion(folderID, 0)
     } else {
-        loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1])
+        console.log("answers")
+    }
+}
+
+function exampleQuestion(folderID) {
+
+    example.innerHTML = ""
+
+    document.getElementById("move-down").style.visibility = "visible"
+    document.getElementById("move-up").style.visibility = "visible"
+
+    if (!folderID.sub.questions[sentenceNumber]) {
+        sentenceNumber = 0
+        document.getElementById("move-down").style.visibility = "hidden"
+        document.getElementById("move-up").style.visibility = "hidden"
+        return alert("finished")
+    }
+
+    answerString = folderID.sub.questions[sentenceNumber].toString()
+
+    for (let f = 0; f < folderID.sub.questions[sentenceNumber].length; f++ ) {
+
+        const tile = document.createElement("div")
+        const tileImage = document.createElement("img")
+        const tileText = document.createElement("p")
+        tile.className = "example-tile"
+        tileImage.className = "tile-image"
+        tileText.className = "tile-text"
+        tile.id = data[folderID.sub.questions[sentenceNumber][f]].id
+        tileText.textContent = data[folderID.sub.questions[sentenceNumber][f]].text
+        if (typeof data[folderID.sub.questions[sentenceNumber][f]].image != "undefined") {
+            tileImage.src = data[folderID.sub.questions[sentenceNumber][f]].image
+            tileImage.alt = data[folderID.sub.questions[sentenceNumber][f]].text
+            tile.appendChild(tileImage)
+        }
+        example.appendChild(tile)
+        tile.appendChild(tileText)
     }
 }
