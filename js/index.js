@@ -1,3 +1,5 @@
+'use strict'
+
 const search = document.getElementById('search-input')
 const sentence = document.getElementById("sentence-display")
 const grid = document.getElementById("tiles-grid")
