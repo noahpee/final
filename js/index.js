@@ -9,12 +9,6 @@ let previous;
 
 let sentenceArray = []
 
-function bugCheck(one, two) {
-
-    let bottomText = document.getElementById("bottom-text")
-    bottomText.innerHTML = `the current is ${data[current].text}-${current}, the first variable is ${data[one].text}-${one}, the second is ${data[two].text}-${two}, the previous is ${data[previous].text}-${previous}`
-}
-
 function loadSettings() {
     
     let wordStorage = localStorage.getItem("words")
@@ -29,17 +23,16 @@ function loadSettings() {
             name: "",
             columns: 4,
             rows: 4,
-            home: 0,
             firstWords: [224,728,673,274,485,504,445,66,101,289,187,48,521,302,491,21],
         }
         let stringify = JSON.stringify(user)
         localStorage.setItem("user", stringify)
     }
-    current = user.home
+    data[0].array = user.firstWords
 }
 
 loadSettings()
-loadGrid(current)
+loadGrid(data[0].array, 0)
 
 function searchKeyUp() {
 
@@ -49,37 +42,38 @@ function searchKeyUp() {
             searchResults.push(p)
         }
     }
-    data[0].array = searchResults
-    loadGrid(0)
+    loadGrid(searchResults, -1)
 }
 
 function back() {
     
     search.value = ""
+    
+    let last = sentenceArray[sentenceArray.length -1]
 
     if (sentenceArray.length == 0) {
-        data[0].array = user.firstWords
-        loadGrid(user.home)
-        return 
-    }
-    if (!data[sentenceArray[sentenceArray.length -1]].sub || data[sentenceArray[sentenceArray.length -1]].folder == false) {
-        sentence.removeChild(document.getElementById(sentenceArray[sentenceArray.length -1]))
-    }
-    sentenceArray.pop()
-    if (sentenceArray.length == 0) {
-        data[0].array = user.firstWords
-        loadGrid(user.home)
+        return
+    } 
+
+    if (data[last].folder == true || data[last].sub) {
+        //
     } else {
-        loadGrid(sentenceArray[sentenceArray.length -1])
-        current = sentenceArray[sentenceArray.length -1]
+        sentence.removeChild(sentence.lastChild)
+    }
 
+    sentenceArray.pop()
+
+    if (sentenceArray.length == 0) {
+        loadGrid(user.firstWords, 0)
+    } else {
+        loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1]) 
     }
 }
 
 function clearAll() {
 
     if (sentenceArray.length == 0) {
-        loadGrid(user.home)
+        loadGrid(data[0].array, 0)
         return
     }
     sentence.innerHTML = ""
@@ -88,14 +82,14 @@ function clearAll() {
 
 function home() {
 
-    data[0].array = user.firstWords
-    loadGrid(0)
+    loadGrid(data[0].array, 0)
     previous = 0
 }
 
-function loadGrid(idNumber) {
+function loadGrid(fromArray, current) {
 
     grid.innerHTML = ''
+    
     for ( let i = 0; i < (user.columns*user.rows); i++ ) {
         const tile = document.createElement("div")
         const tileImage = document.createElement("img")
@@ -103,31 +97,26 @@ function loadGrid(idNumber) {
         tile.className = "tile"
         tileImage.className = "tile-image"
         tileText.className = "tile-text"
-        tile.id = data[idNumber].array[i]
-        tileText.textContent = data[data[idNumber].array[i]].text
-        if (typeof data[data[idNumber].array[i]].image != "undefined") {
-            tileImage.src = data[data[idNumber].array[i]].image
-            tileImage.alt = data[data[idNumber].array[i]].text
+        tile.id = fromArray[i]
+        tileText.textContent = data[fromArray[i]].text
+        if (typeof data[fromArray[i]].image != "undefined") {
+            tileImage.src = data[fromArray[i]].image
+            tileImage.alt = data[fromArray[i]].text
             tile.appendChild(tileImage)
         }
-        if (data[data[idNumber].array[i]].sub || data[data[idNumber].array[i]].folder == true) {
+        if (data[fromArray[i]].sub || data[fromArray[i]].folder == true) {
             tile.style.backgroundColor = "rgb(253, 238, 217)"
             tile.onclick = function tileClick() {
-                previous = current
-                loadGrid(this.id)
-                changeOrder(idNumber, this.id)
-                current = this.id
-                bugCheck(idNumber, this.id)
+                loadGrid(data[this.id].array, this.id)
+                changeOrder(current, this.id)
+                sentenceArray.push(parseInt(this.id))
             }
         } else {
             tile.onclick = function tileClick() {
-                previous = current
-                loadGrid(this.id)
+                loadGrid(data[this.id].array, this.id)
+                changeOrder(current, this.id)
                 sentenceUpdate(this.id)
-                changeOrder(idNumber, this.id)
-                current = this.id
-                bugCheck(idNumber, this.id)
-
+                sentenceArray.push(parseInt(this.id))
             }
         }
         grid.appendChild(tile)
@@ -137,7 +126,6 @@ function loadGrid(idNumber) {
 
 function sentenceUpdate(idNumber) {
 
-    sentenceArray.push(data[idNumber].id)
     const tile = document.createElement("div")
     const tileImage = document.createElement("img")
     const tileText = document.createElement("p")
@@ -160,26 +148,44 @@ function speak() {
 
     let msg = new SpeechSynthesisUtterance()
     for (let j = 0; j < sentenceArray.length; j++) {
-        if (!data[sentenceArray[j]].sub || data[sentenceArray[j]].folder == false) {
+        if (data[sentenceArray[j]].folder == true || data[sentenceArray[j]].sub) {
+            //
+        } else {
             msg.text += `${data[sentenceArray[j]].text} `
-            console.log(data[sentenceArray[j]].folder)
-        } 
+        }
     }
     window.speechSynthesis.speak(msg)
 }
 
+function changeOrder(current, id) {
 
+    if (current == -1) {
 
-function changeOrder(one, two) {
+        let last = sentenceArray[sentenceArray.length -1]
 
-    let index = data[previous].array.indexOf(parseInt(two))
+        if (typeof last == "undefined") {
 
-    if (index == -1) {
-        data[previous].array.unshift(parseInt(two))
-    } else if (parseInt(one) === 0){
-        console.log('home')
+            let index = data[0].array.indexOf(parseInt(id))
+            if (index == -1) {
+                data[0].array.unshift(parseInt(id)) 
+            } else {
+                data[0].array.splice(index, 1)
+                data[0].array.unshift(parseInt(id))  
+            }
+
+        } else {
+            let index = data[last].array.indexOf(parseInt(id))
+            if (index == -1) {
+                data[last].array.unshift(parseInt(id)) 
+            } else {
+                data[last].array.splice(index, 1)
+                data[last].array.unshift(parseInt(id))  
+            }
+        }
+
     } else {
-        data[previous].array.splice(index, 1)
-        data[previous].array.unshift(parseInt(two))
+        let index = data[current].array.indexOf(parseInt(id))
+        data[current].array.splice(index, 1)
+        data[current].array.unshift(parseInt(id))  
     }
 }

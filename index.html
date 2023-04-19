@@ -9,9 +9,12 @@
 </head>
 <body>
     <header>
-        <input type="text" name="search" class="search-input" id="search-input" placeholder="speak-easy" onkeyup="searchKeyUp()">
+
     </header>
     <main>
+        <div class="example-container">
+            <input type="text" name="search" class="search-input" id="search-input" placeholder="speak-easy" onkeyup="searchKeyUp()">
+        </div>
         <div class="sentence-container">
             <button onclick="back()" class="sentence-button">back</button>
             <div onclick="speak()" class="sentence-display" id="sentence-display"></div>
@@ -20,11 +23,10 @@
         <div class="grid-container">
             <button onclick="home()" class="grid-button">home</button>
             <div class="tiles-grid" id="tiles-grid"></div>
-            <button onclick="spare()" class="grid-button">spare</button>
         </div>
     </main>
     <footer>
-        <p id="bottom-text">the current is "", the first variable is "", the second is "", the previous is "".</p>
+        <p id="bottom-text"> © filler in manilla</p>
     </footer>
 </body>
 <script src="js/index.js"></script>
