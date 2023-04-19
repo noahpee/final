@@ -8,33 +8,59 @@
     <title>Final</title>
 </head>
 <body>
-    <header>
-        <input type="text" name="search" class="search-input" id="search-input" placeholder="speak-easy" onkeyup="searchKeyUp()">
-    </header>
-    <main>
-        <div class="example-box">
-            <button id="move-down" class="move-button" onclick="move()"><<</button>
-            <div class="example-container" id="example-container"></div>
-            <button id="move-up" class="move-button" onclick="move()">>></button>
+<header>
+    <div class="menu-dropdown">
+        <p class="menu-burger" onclick="menuOpen()">☰</p>
+        <div class="menu-content" id="menu-content">
+            <p>homepage</p>
+            <p>about us</p>
         </div>
-        <div class="sentence-container">
-            <button onclick="back()" class="sentence-button">back</button>
-            <div onclick="speak()" class="sentence-display" id="sentence-display"></div>
-            <button onclick="clearAll()" class="sentence-button">clear</button>
-        </div>
-        <div class="grid-container">
-            <button onclick="home()" class="grid-button">home</button>
-            <div class="tiles-grid" id="tiles-grid"></div>
-        </div>
-    </main>
-    <footer>
-        <label for="rows">rows</label>
-        <input type="number" name="rows" class="select" id="rows-select" onchange="changeDisplay()">
-        <label for="columns">columns</label>
-        <input type="number" name="columns" class="select" id="columns-select" onchange="changeDisplay()">
-        <button onclick="save()">save</button>
-        <p id="bottom-text"> © filler in manilla</p>
-    </footer>
+    </div>
+    <input type="text" name="search" class="search-input" id="search-input" placeholder="speak-easy" onkeyup="searchKeyUp()">
+    <div class="account-div" >
+        <div class="account-dropdown">
+            <div class="notification"></div>
+            <img src="assets/accounts.png" class="account-image" alt="account-icon" onclick="accountOpen()">
+            <div class="account-content" id="account-content">
+                <details>
+                    <summary>user</summary>
+                    <p>username:</p>
+                </details>
+                <details>
+                    <summary>grid settings</summary>
+                    <label for="rows">rows</label>
+                    <input type="number" name="rows" class="select" id="rows-select" onchange="changeDisplay()">
+                    <label for="columns">columns</label>
+                    <input type="number" name="columns" class="select" id="columns-select" onchange="changeDisplay()">
+                    <button>lock grid</button>                
+                </details>
+                <details>
+                    <summary>save</summary>
+                    <button onclick="save()">save</button>
+                </details>
+            </div>
+        </div>    
+    </div>
+</header>
+<main>
+    <div class="example-box">
+        <button id="move-down" class="move-button" onclick="move()"><<</button>
+        <div class="example-container" id="example-container"></div>
+        <button id="move-up" class="move-button" onclick="move()">>></button>
+    </div>
+    <div class="sentence-container">
+        <button onclick="back()" class="sentence-button">back</button>
+        <div onclick="speak()" class="sentence-display" id="sentence-display"></div>
+        <button onclick="clearAll()" class="sentence-button">clear</button>
+    </div>
+    <div class="grid-container">
+        <button onclick="home()" class="grid-button">home</button>
+        <div class="tiles-grid" id="tiles-grid"></div>
+    </div>
+</main>
+<footer>
+    <p id="bottom-text"> © filler in manilla</p>
+</footer>
 </body>
 <script src="js/database.js"></script>
 <script src="js/index.js"></script>

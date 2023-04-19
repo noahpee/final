@@ -14,6 +14,8 @@ let answerString;
 
 let sentenceArray = []
 
+let accountFlick = true
+
 function loadSettings() {
     
     let wordStorage = localStorage.getItem("words")
@@ -96,7 +98,6 @@ function back() {
     
     if (sentenceArray.length == 0) {
         return loadGrid(data[0].array, 0)
-
     } 
 
     let last = sentenceArray[sentenceArray.length -1]
@@ -249,6 +250,7 @@ function folderCheck(folderID) {
     } else if (!folderID.sub.answers[0]) {
         sentenceNumber = 0
         folderNumber = folderID
+        document.getElementById('search-input').placeholder = folderID.text
         exampleQuestion(folderID, 0)
     } else {
         console.log("answers")
@@ -266,6 +268,7 @@ function exampleQuestion(folderID) {
         sentenceNumber = 0
         document.getElementById("move-down").style.visibility = "hidden"
         document.getElementById("move-up").style.visibility = "hidden"
+        document.getElementById('search-input').placeholder = "speak-easy"
         return alert("finished")
     }
 
@@ -288,5 +291,27 @@ function exampleQuestion(folderID) {
         }
         example.appendChild(tile)
         tile.appendChild(tileText)
+    }
+}
+
+function accountOpen() {
+
+    if (accountFlick == true) {
+        document.getElementById("account-content").style.display = "block"
+        accountFlick = false
+    } else {
+        document.getElementById("account-content").style.display = "none"
+        accountFlick = true
+    }
+}
+
+function menuOpen() {
+
+    if (accountFlick == true) {
+        document.getElementById("menu-content").style.display = "block"
+        accountFlick = false
+    } else {
+        document.getElementById("menu-content").style.display = "none"
+        accountFlick = true
     }
 }

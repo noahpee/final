@@ -12,16 +12,78 @@
 
 header {
     display: flex;
-    justify-content: center;
-    background-color: var(--pinkPallete);
-    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    width: 88%;
     height: 5%;
-    margin-bottom: 0.33%;
+    margin: 0.33% auto;
     gap: 25px;
 }
 
+.menu-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/*how to toggle display?*/
+
+.menu-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+}
+
+.account-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.account-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+    right: 0;
+}
+
+.menu-burger {
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.account-div {
+    height: 70%;
+    width: 3%;
+    display: flex;
+    flex-direction: row-reverse;
+    cursor: pointer;
+}
+
+.account-image {
+    max-width: 80%;
+    max-height: 100%;
+    object-fit: cover;
+    position: relative;
+}
+
+.notification{
+    top: 0.33%;
+    height: 8px;
+    width: 8px;
+    border-radius: 100%;
+    background-color: red;
+    position: absolute;
+}
+
 .select {
-    width: 5%;
+    width: 30%;
 }
 
 body {
@@ -80,7 +142,8 @@ body {
     border: none;
     border-radius: 5px;
     text-align: center;
-    background-color: var(--pinkPallete);
+    font-size: 1.2rem;
+    width: 50%;
 }
 
 main {
@@ -171,13 +234,10 @@ main {
     align-items: center;
     justify-content: space-evenly;
     background-color: lightgray;
-    grid-template-columns: repeat(4, 23%);
-    grid-template-rows: repeat(4, 25%);
     width: 90%;
     height: 100%;
     line-height: 1.6rem;
     margin: 0 auto;
-    overflow: hidden;
     border-radius: 10px;
 }
 
