@@ -16,6 +16,10 @@ let sentenceArray = []
 
 let accountFlick = true
 
+loadSettings()
+changeDisplay()
+loadGrid(user.firstWords, 0)
+
 function loadSettings() {
     
     let wordStorage = localStorage.getItem("words")
@@ -43,29 +47,11 @@ function loadSettings() {
     document.getElementById("columns-select").value = user.columns
 }
 
-loadSettings()
-changeDisplay()
-loadGrid(user.firstWords, 0)
-
-function changeDisplay() {
-
-    user.rows = document.getElementById("rows-select").value
-    user.columns = document.getElementById("columns-select").value
-
-    grid.style.gridTemplateRows = `repeat(${user.rows}, ${Math.round(1/user.rows*100)}%)`
-    grid.style.gridTemplateColumns = `repeat(${user.columns}, ${Math.round(1/user.columns*100)}%)`
-
-    if (typeof sentenceArray[sentenceArray.length -1] == "undefined") {
-        loadGrid(data[0].array, 0)
-    } else {
-        loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1])
-    }
-}
-
 function save() {
+
     let stringify = JSON.stringify(data);
-    localStorage.setItem("words", stringify);
     let userString = JSON.stringify(user)
+    localStorage.setItem("words", stringify);
     localStorage.setItem("user", userString)
     alert("your settings have been saved")
 }
@@ -86,6 +72,7 @@ function searchKeyUp() {
 }
 
 function move() {
+
     if (event.target.id == "move-down") {
         sentenceNumber--
     } else {
@@ -99,7 +86,6 @@ function back() {
     if (sentenceArray.length == 0) {
         return loadGrid(data[0].array, 0)
     } 
-
     let last = sentenceArray[sentenceArray.length -1]
     if (!data[last].sub) {
         sentence.removeChild(sentence.lastChild)
@@ -120,11 +106,6 @@ function clearAll() {
     }
     sentence.innerHTML = ""
     sentenceArray = []
-}
-
-function home() {
-
-    loadGrid(data[0].array, 0)
 }
 
 function loadGrid(fromArray, current) {
@@ -163,9 +144,7 @@ function loadGrid(fromArray, current) {
                 changeOrder(current, this.id)
                 sentenceUpdate(this.id)
                 sentenceArray.push(parseInt(this.id))
-
                 let sentenceString = sentenceArray.toString()
-
                 if (sentenceString.includes(answerString)) {
                     sentenceNumber++
                     exampleQuestion(folderNumber, current)
@@ -176,6 +155,21 @@ function loadGrid(fromArray, current) {
         }
         grid.appendChild(tile)
         tile.appendChild(tileText)
+    }
+}
+
+function changeDisplay() {
+
+    user.rows = document.getElementById("rows-select").value
+    user.columns = document.getElementById("columns-select").value
+
+    grid.style.gridTemplateRows = `repeat(${user.rows}, ${Math.round(1/user.rows*100)}%)`
+    grid.style.gridTemplateColumns = `repeat(${user.columns}, ${Math.round(1/user.columns*100) -3}%)`
+
+    if (typeof sentenceArray[sentenceArray.length -1] == "undefined") {
+        loadGrid(data[0].array, 0)
+    } else {
+        loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1])
     }
 }
 
