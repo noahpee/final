@@ -10,7 +10,7 @@ let user;
 let folderNumber;
 let sentenceNumber;
 
-let nextWord
+let nextWord;
 let currentWord = 0
 
 let answerString;
@@ -18,6 +18,9 @@ let answerString;
 let sentenceArray = []
 
 let gridArray = []
+
+let backSpace = false
+let moveSpace = false
 
 loadSettings()
 changeDisplay()
@@ -82,6 +85,8 @@ function searchKeyUp() {
 
 function move() {
 
+    moveSpace = true
+
     if (event.target.id == "move-down") {
         sentenceNumber--
     } else {
@@ -89,10 +94,17 @@ function move() {
     }
     currentWord = 0
     exampleQuestion(folderNumber)
+    next(folderNumber.array, folderNumber.sub.questions[sentenceNumber][currentWord], 0)
+    
 }
 
 function back() {
-    
+
+    backSpace = true
+
+    currentWord--
+    currentWord--
+
     if (sentenceArray.length == 0) {
         return loadGrid(data[0].array, 0)
     } 
@@ -105,7 +117,9 @@ function back() {
         loadGrid(data[0].array, 0)
     } else {
         loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1]) 
+        next(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1],0)
     }
+
 }
 
 function clearAll() {
@@ -151,11 +165,10 @@ function loadGrid(fromArray, current) {
                 folderCheck(data[this.id])
             }
         } else {
-            tile.onclick = function tileClick() {
+            tile.onclick = function tileClick(thing) {
                 loadGrid(data[this.id].array, this.id)
-                changeOrder(current, this.id)
                 sentenceUpdate(this.id)
-                next(data[this.id].array, this.id)
+                next(data[this.id].array, this.id, current)
                 sentenceArray.push(parseInt(this.id))
                 let sentenceString = sentenceArray.toString()
                 if (sentenceString.includes(answerString)) {
@@ -321,31 +334,39 @@ function menuOpen() {
     }
 }
 
-function next(fromArray, current) {
+function next(fromArray, current, id) {
+
+    if (backSpace == true) {
+        nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
+    }
+
+    fromArray.length = user.rows*user.columns
 
     if (current == nextWord) {
 
-        currentWord++
+        if (moveSpace == false && moveSpace == false) {
+            currentWord++
+        }
 
         if (typeof folderNumber.sub.questions[sentenceNumber][currentWord] == "undefined") {
             currentWord = 0
             sentenceNumber ++
             nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
-            console.log("pop", data[nextWord].text)
-
         } else {
             nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
-            console.log("pop", data[nextWord].text)
         }
+        if (fromArray.includes(nextWord)) {
+            //
+        } else {
+            let random = Math.floor(Math.random() * (user.rows*user.columns));
+            fromArray.splice(random, 0, nextWord)
+            loadGrid(fromArray, current)
+            fromArray.splice(random, 1)
+        }
+        
+    } else if (backwards == false && moveSpace == false) {
+        changeOrder(id, current)
     }
-
-    if (fromArray.includes(nextWord)) {
-        console.log('inner')
-    } else {
-        let random = Math.floor(Math.random() * (user.rows*user.columns));
-        console.log(random)
-        fromArray.splice(random, 0, nextWord)
-        loadGrid(fromArray, current)
-        fromArray.splice(random, 0)
-    }
+    backSpace = false
+    moveSpace = false
 }
