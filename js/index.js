@@ -10,11 +10,14 @@ let user;
 let folderNumber;
 let sentenceNumber;
 
+let nextWord
+let currentWord = 0
+
 let answerString;
 
 let sentenceArray = []
 
-let accountFlick = true
+let gridArray = []
 
 loadSettings()
 changeDisplay()
@@ -61,6 +64,12 @@ function searchKeyUp() {
     let searchResults = [];
 
     if ((document.getElementById('search-input').value) == "") {
+
+        if (sentenceArray.length == 0) {
+            loadGrid(data[0].array, 0)
+        } else {
+            loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1]) 
+        }
         return
     }
     for (let p = 0; p < data.length; p++) {
@@ -78,6 +87,7 @@ function move() {
     } else {
         sentenceNumber++
     }
+    currentWord = 0
     exampleQuestion(folderNumber)
 }
 
@@ -111,12 +121,14 @@ function clearAll() {
 function loadGrid(fromArray, current) {
 
     grid.innerHTML = ''
+    gridArray = []
     
     for ( let i = 0; i < (user.columns*user.rows); i++ ) {
 
         if (!fromArray[i]) {
             return
         }
+        gridArray.push(fromArray[i])
         const tile = document.createElement("div")
         const tileImage = document.createElement("img")
         const tileText = document.createElement("p")
@@ -143,10 +155,10 @@ function loadGrid(fromArray, current) {
                 loadGrid(data[this.id].array, this.id)
                 changeOrder(current, this.id)
                 sentenceUpdate(this.id)
+                next(data[this.id].array, this.id)
                 sentenceArray.push(parseInt(this.id))
                 let sentenceString = sentenceArray.toString()
                 if (sentenceString.includes(answerString)) {
-                    sentenceNumber++
                     exampleQuestion(folderNumber, current)
                     alert("nice")
                     clearAll()
@@ -259,6 +271,7 @@ function exampleQuestion(folderID) {
     document.getElementById("move-up").style.visibility = "visible"
 
     if (!folderID.sub.questions[sentenceNumber]) {
+        currentWord = 0
         sentenceNumber = 0
         document.getElementById("move-down").style.visibility = "hidden"
         document.getElementById("move-up").style.visibility = "hidden"
@@ -286,26 +299,53 @@ function exampleQuestion(folderID) {
         example.appendChild(tile)
         tile.appendChild(tileText)
     }
+    nextWord = folderID.sub.questions[sentenceNumber][0]
 }
 
 function accountOpen() {
 
-    if (accountFlick == true) {
+    if (document.getElementById("account-content").style.display == "") {
         document.getElementById("account-content").style.display = "block"
-        accountFlick = false
     } else {
-        document.getElementById("account-content").style.display = "none"
-        accountFlick = true
+        document.getElementById("account-content").style.display = ""
     }
+
 }
 
 function menuOpen() {
 
-    if (accountFlick == true) {
+    if (document.getElementById("menu-content").style.display == "") {
         document.getElementById("menu-content").style.display = "block"
-        accountFlick = false
     } else {
-        document.getElementById("menu-content").style.display = "none"
-        accountFlick = true
+        document.getElementById("menu-content").style.display = ""
+    }
+}
+
+function next(fromArray, current) {
+
+    if (current == nextWord) {
+
+        currentWord++
+
+        if (typeof folderNumber.sub.questions[sentenceNumber][currentWord] == "undefined") {
+            currentWord = 0
+            sentenceNumber ++
+            nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
+            console.log("pop", data[nextWord].text)
+
+        } else {
+            nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
+            console.log("pop", data[nextWord].text)
+        }
+    }
+
+    if (fromArray.includes(nextWord)) {
+        console.log('inner')
+    } else {
+        let random = Math.floor(Math.random() * (user.rows*user.columns));
+        console.log(random)
+        fromArray.splice(random, 0, nextWord)
+        loadGrid(fromArray, current)
+        fromArray.splice(random, 0)
     }
 }
