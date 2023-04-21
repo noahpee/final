@@ -8,9 +8,10 @@ let data;
 let user;
 
 let folderNumber;
-let sentenceNumber;
+let lastWord = 0
+let sentenceNumber = 0
 
-let nextWord;
+let nextWord = 0
 let currentWord = 0
 
 let answerString;
@@ -18,9 +19,6 @@ let answerString;
 let sentenceArray = []
 
 let gridArray = []
-
-let backSpace = false
-let moveSpace = false
 
 loadSettings()
 changeDisplay()
@@ -85,49 +83,59 @@ function searchKeyUp() {
 
 function move() {
 
-    moveSpace = true
-
     if (event.target.id == "move-down") {
         sentenceNumber--
     } else {
         sentenceNumber++
     }
     currentWord = 0
-    exampleQuestion(folderNumber)
-    next(folderNumber.array, folderNumber.sub.questions[sentenceNumber][currentWord], 0)
-    
+    exampleQuestion(folderNumber)    
 }
 
 function back() {
 
-    backSpace = true
-
-    currentWord--
-    currentWord--
-
     if (sentenceArray.length == 0) {
+        nextWord = 0
         return loadGrid(data[0].array, 0)
     } 
     let last = sentenceArray[sentenceArray.length -1]
     if (!data[last].sub) {
         sentence.removeChild(sentence.lastChild)
     } 
+
     sentenceArray.pop()
     if (sentenceArray.length == 0) {
-        loadGrid(data[0].array, 0)
+        loadGrid(data[last].array, 0)
+        currentWord = 0
+    } else if (folderNumber.sub.questions[sentenceNumber][currentWord -1] == last) {
+        currentWord--
+        console.log('down')
+        nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
+        let backArray = data[sentenceArray[sentenceArray.length -1]].array
+        backArray.length = (user.rows*user.columns)
+        if (backArray.includes(nextWord)) {
+            console.log('inner')
+            loadGrid(backArray, sentenceArray[sentenceArray.length -1])
+        } else {
+            let random = Math.floor(Math.random() * (user.rows*user.columns));
+            backArray.splice(random, 0, nextWord)
+            loadGrid(backArray, sentenceArray[sentenceArray.length -1])
+            backArray.splice(random, 1)
+        }
     } else {
-        loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1]) 
-        next(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1],0)
+        console.log(folderNumber.sub.questions[sentenceNumber][currentWord], sentenceArray[sentenceArray.length -1], nextWord)
+        loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1])
     }
-
 }
 
 function clearAll() {
 
     if (sentenceArray.length == 0) {
         loadGrid(data[0].array, 0)
+        nextWord = 0
         return
     }
+    lastWord = sentenceArray[sentenceArray.length -1]
     sentence.innerHTML = ""
     sentenceArray = []
 }
@@ -136,6 +144,10 @@ function loadGrid(fromArray, current) {
 
     grid.innerHTML = ''
     gridArray = []
+
+    if (nextWord == 0) {
+        console.log("no next word")
+    }
     
     for ( let i = 0; i < (user.columns*user.rows); i++ ) {
 
@@ -168,7 +180,7 @@ function loadGrid(fromArray, current) {
             tile.onclick = function tileClick(thing) {
                 loadGrid(data[this.id].array, this.id)
                 sentenceUpdate(this.id)
-                next(data[this.id].array, this.id, current)
+                next(data[this.id].array, current, this.id)
                 sentenceArray.push(parseInt(this.id))
                 let sentenceString = sentenceArray.toString()
                 if (sentenceString.includes(answerString)) {
@@ -270,7 +282,7 @@ function folderCheck(folderID) {
         sentenceNumber = 0
         folderNumber = folderID
         document.getElementById('search-input').placeholder = folderID.text
-        exampleQuestion(folderID, 0)
+        exampleQuestion(folderID)
     } else {
         console.log("answers")
     }
@@ -286,6 +298,7 @@ function exampleQuestion(folderID) {
     if (!folderID.sub.questions[sentenceNumber]) {
         currentWord = 0
         sentenceNumber = 0
+        nextWord = 0
         document.getElementById("move-down").style.visibility = "hidden"
         document.getElementById("move-up").style.visibility = "hidden"
         document.getElementById('search-input').placeholder = "speak-easy"
@@ -312,7 +325,7 @@ function exampleQuestion(folderID) {
         example.appendChild(tile)
         tile.appendChild(tileText)
     }
-    nextWord = folderID.sub.questions[sentenceNumber][0]
+    nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
 }
 
 function accountOpen() {
@@ -336,22 +349,19 @@ function menuOpen() {
 
 function next(fromArray, current, id) {
 
-    if (backSpace == true) {
-        nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
-    }
+    fromArray.length = (user.rows*user.columns)
 
-    fromArray.length = user.rows*user.columns
-
-    if (current == nextWord) {
-
-        if (moveSpace == false && moveSpace == false) {
-            currentWord++
-        }
-
+    if (id == nextWord) {
+        currentWord++
         if (typeof folderNumber.sub.questions[sentenceNumber][currentWord] == "undefined") {
             currentWord = 0
             sentenceNumber ++
-            nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
+            console.log("up")
+        }
+        if (typeof folderNumber.sub.questions[sentenceNumber] == "undefined") {
+            currentWord = 0
+            sentenceNumber = 0
+            return console.log("done")
         } else {
             nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
         }
@@ -363,10 +373,8 @@ function next(fromArray, current, id) {
             loadGrid(fromArray, current)
             fromArray.splice(random, 1)
         }
-        
-    } else if (backwards == false && moveSpace == false) {
-        changeOrder(id, current)
+        console.log("match")
+    } else {
+        changeOrder(current, id)
     }
-    backSpace = false
-    moveSpace = false
 }
