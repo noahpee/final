@@ -160,6 +160,8 @@ function loadGrid(fromArray, current) {
                 sentenceArray.push(parseInt(this.id))
                 folderCheck(data[this.id])
             }
+            document.getElementById('search-input').placeholder = "speak-easy"
+            document.getElementById('search-input').value = ""
         } else {
             tile.onclick = function tileClick(thing) {
                 loadGrid(data[this.id].array, this.id)
@@ -172,6 +174,8 @@ function loadGrid(fromArray, current) {
                     alert("nice")
                     clearAll()
                 }
+                document.getElementById('search-input').placeholder = "speak-easy"
+                document.getElementById('search-input').value = ""
             }
         }
         grid.appendChild(tile)
@@ -273,9 +277,19 @@ function folderCheck(folderID) {
     }
 }
 
-function exampleQuestion(folderID) {
+function exampleQuestion(folderID, check) {
 
     example.innerHTML = ""
+
+    if (check == -1) {
+        currentWord = 0
+        sentenceNumber = 0
+        nextWord = 0
+        document.getElementById("move-down").style.visibility = "hidden"
+        document.getElementById("move-up").style.visibility = "hidden"
+        document.getElementById('search-input').placeholder = "speak-easy"
+        return
+    }
 
     document.getElementById("move-down").style.visibility = "visible"
     document.getElementById("move-up").style.visibility = "visible"
@@ -344,7 +358,6 @@ function folderWord(fromArray, check) {
             if (fromArray.includes(nextWord)) {
                 //
             } else {
-                console.log('random1', data[nextWord].text)
                 let random = Math.floor(Math.random() * (user.rows*user.columns));
                 fromArray.splice(random, 0, nextWord)
                 loadGrid(fromArray, sentenceArray[sentenceArray.length -1])
@@ -359,7 +372,6 @@ function folderWord(fromArray, check) {
                 if (fromArray.includes(nextWord)) {
                     //
                 } else {
-                    console.log('random2', data[nextWord].text)
                     let random = Math.floor(Math.random() * (user.rows*user.columns));
                     fromArray.splice(random, 0, nextWord)
                     loadGrid(fromArray, sentenceArray[sentenceArray.length -1])
@@ -398,7 +410,6 @@ function next(fromArray, current, id) {
             loadGrid(fromArray, current)
             fromArray.splice(random, 1)
         }
-        console.log("match")
     } else {
         changeOrder(current, id)
     }
