@@ -31,32 +31,53 @@ header {
     position: absolute;
     background-color: #f9f9f9;
     user-select: none;
-    min-width: 160px;
+    min-width: 1000%;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    padding: 12px 16px;
     z-index: 1;
+    padding-left: 20px;
+    margin-top: -4px;
+}
+
+.set-div {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.input-div {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 5px;
 }
 
 .account-dropdown {
     position: relative;
     display: inline-block;
+    cursor: pointer;
 }
 
 .account-content {
     display: none;
     position: absolute;
     background-color: #f9f9f9;
-    min-width: 160px;
+    min-width: 1000%;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    padding: 12px 16px;
     z-index: 1;
     right: 0;
+    padding-left: 20px;
+    padding-right: 20px;
     gap: 50px;
+}
+
+details {
+    margin: 10px 0;
 }
 
 .menu-burger {
     font-size: 1.5rem;
     cursor: pointer;
+    margin: 0;
 }
 
 .account-div {
@@ -75,12 +96,13 @@ header {
 }
 
 .notification{
-    top: 0.33%;
+    right: 0.33%;
     height: 8px;
     width: 8px;
     border-radius: 100%;
-    background-color: red;
+    background-color: none;
     position: absolute;
+    top: -3px;
 }
 
 .select {

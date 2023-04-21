@@ -49,6 +49,7 @@ function loadSettings() {
     data[549].text = user.name
     document.getElementById("rows-select").value = user.rows
     document.getElementById("columns-select").value = user.columns
+    document.getElementById("userName").innerText = `username: ${user.name}`
 }
 
 function save() {
