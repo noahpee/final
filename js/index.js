@@ -40,8 +40,8 @@ function loadSettings() {
     } else {
         user = {
             name: "",
-            columns: 4,
-            rows: 4,
+            columns: 3,
+            rows: 3,
             firstWords: [],
         }
         user.name = prompt("what is your name?")
