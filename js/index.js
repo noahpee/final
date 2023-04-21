@@ -107,7 +107,8 @@ function back() {
     if (sentenceArray.length == 0) {
         loadGrid(data[last].array, 0)
         currentWord = 0
-    } else if (folderNumber.sub.questions[sentenceNumber][currentWord -1] == last) {
+    }
+    if (folderNumber.sub.questions[sentenceNumber][currentWord -1] == last) {
         currentWord--
         console.log('down')
         nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
