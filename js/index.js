@@ -6,6 +6,7 @@ const grid = document.getElementById("tiles-grid")
 
 let data;
 let user;
+let last;
 
 let folderNumber;
 let lastWord = 0
@@ -96,45 +97,30 @@ function move() {
 function back() {
 
     if (sentenceArray.length == 0) {
-        nextWord = 0
-        return loadGrid(data[0].array, 0)
+        sentenceNumber = -1
+        exampleQuestion(folderNumber)
+        return 
     } 
-    let last = sentenceArray[sentenceArray.length -1]
+    last = sentenceArray[sentenceArray.length -1]
     if (!data[last].sub) {
         sentence.removeChild(sentence.lastChild)
     } 
-
     sentenceArray.pop()
     if (sentenceArray.length == 0) {
-        loadGrid(data[last].array, 0)
-        currentWord = 0
-    }
-    if (folderNumber.sub.questions[sentenceNumber][currentWord -1] == last) {
-        currentWord--
-        console.log('down')
-        nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
-        let backArray = data[sentenceArray[sentenceArray.length -1]].array
-        backArray.length = (user.rows*user.columns)
-        if (backArray.includes(nextWord)) {
-            console.log('inner')
-            loadGrid(backArray, sentenceArray[sentenceArray.length -1])
-        } else {
-            let random = Math.floor(Math.random() * (user.rows*user.columns));
-            backArray.splice(random, 0, nextWord)
-            loadGrid(backArray, sentenceArray[sentenceArray.length -1])
-            backArray.splice(random, 1)
-        }
+        loadGrid(data[lastWord].array, 0)
+        folderWord(data[lastWord].array, -1)
     } else {
-        console.log(folderNumber.sub.questions[sentenceNumber][currentWord], sentenceArray[sentenceArray.length -1], nextWord)
         loadGrid(data[sentenceArray[sentenceArray.length -1]].array, sentenceArray[sentenceArray.length -1])
+        folderWord(data[sentenceArray[sentenceArray.length -1]].array, 0)
     }
 }
 
 function clearAll() {
 
     if (sentenceArray.length == 0) {
+        sentenceNumber = -1
+        exampleQuestion(folderNumber)
         loadGrid(data[0].array, 0)
-        nextWord = 0
         return
     }
     lastWord = sentenceArray[sentenceArray.length -1]
@@ -146,10 +132,6 @@ function loadGrid(fromArray, current) {
 
     grid.innerHTML = ''
     gridArray = []
-
-    if (nextWord == 0) {
-        console.log("no next word")
-    }
     
     for ( let i = 0; i < (user.columns*user.rows); i++ ) {
 
@@ -274,6 +256,7 @@ function changeOrder(current, id) {
         data[current].array.splice(index, 1)
         data[current].array.unshift(parseInt(id))  
     }
+
 }
 
 function folderCheck(folderID) {
@@ -304,7 +287,7 @@ function exampleQuestion(folderID) {
         document.getElementById("move-down").style.visibility = "hidden"
         document.getElementById("move-up").style.visibility = "hidden"
         document.getElementById('search-input').placeholder = "speak-easy"
-        return alert("finished")
+        return
     }
 
     answerString = folderID.sub.questions[sentenceNumber].toString()
@@ -346,6 +329,46 @@ function menuOpen() {
         document.getElementById("menu-content").style.display = "block"
     } else {
         document.getElementById("menu-content").style.display = ""
+    }
+}
+
+function folderWord(fromArray, check) {
+
+    if (nextWord != 0) {  
+
+        fromArray.length = (user.rows*user.columns)
+        
+        if (last == folderNumber.sub.questions[sentenceNumber][currentWord -1]) {
+            currentWord--
+            nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
+            if (fromArray.includes(nextWord)) {
+                //
+            } else {
+                console.log('random1', data[nextWord].text)
+                let random = Math.floor(Math.random() * (user.rows*user.columns));
+                fromArray.splice(random, 0, nextWord)
+                loadGrid(fromArray, sentenceArray[sentenceArray.length -1])
+                fromArray.splice(random, 1)
+            }
+        } else {
+            if (check == -1) {
+                return
+            }
+            if (currentWord == sentenceArray.length -1) {
+                nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
+                if (fromArray.includes(nextWord)) {
+                    //
+                } else {
+                    console.log('random2', data[nextWord].text)
+                    let random = Math.floor(Math.random() * (user.rows*user.columns));
+                    fromArray.splice(random, 0, nextWord)
+                    loadGrid(fromArray, sentenceArray[sentenceArray.length -1])
+                    fromArray.splice(random, 1)
+                }
+            }
+        }
+    } else {
+        console.log('not folder')
     }
 }
 
