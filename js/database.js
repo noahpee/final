@@ -3,6 +3,7 @@ let database = {
     {
 "id":0,
 "text":"",
+"name": "defualt",
 "array": [224,673,274,485,504,445,66,101,728,729,187,48,521,302,491,21]
 },
     {
@@ -5173,3 +5174,31 @@ function loadData() {
         let stringify = JSON.stringify(database.words);
         localStorage.setItem("words", stringify);      
 }
+function populateVoiceList() {
+    if (typeof speechSynthesis === "undefined") {
+      return;
+    }
+  
+    const voices = speechSynthesis.getVoices();
+  
+    for (let i = 0; i < voices.length; i++) {
+      const option = document.createElement("option");
+      option.textContent = `${voices[i].name} (${voices[i].lang}) ${i}`;
+  
+      if (voices[i].default) {
+        option.textContent += " — DEFAULT";
+      }
+
+      if (i == user.voice) {
+        option.selected = "selected"
+      }
+  
+      option.setAttribute("data-lang", voices[i].lang);
+      option.setAttribute("data-name", voices[i].name);
+      option.id = `vs${i}`
+      document.getElementById("voiceSelect").appendChild(option);
+    }
+    document.getElementById("homePage").innerText = `layout : ${data[user.home].name}`
+
+  }
+

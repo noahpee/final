@@ -25,23 +25,27 @@
                 <details>
                     <summary>user</summary>
                     <p id="userName">username:</p>
-                    <p></p>
-                </details>
+                    <p id="homePage">home layout: </p>
+                    <div class="input-div">
+                        <label>voice</label>
+                        <select id="voiceSelect" class="voice-input" onchange="voiceChange()"></select>
+                    </div>           
+                    </details>
                 <details class="set-div">
                     <summary>grid settings</summary>
                     <div class="input-div">
                         <label for="rows">rows</label>
-                        <input type="number" name="rows" class="select" id="rows-select" onchange="changeDisplay()">
+                        <input type="number" name="rows" class="select" min="1" max="10" id="rows-select" onchange="changeDisplay()">
                     </div>
                     <div class="input-div">
                         <label for="columns">columns</label>
-                        <input type="number" name="columns" class="select" id="columns-select" onchange="changeDisplay()">
+                        <input type="number" name="columns" class="select" min="1" max="10" id="columns-select" onchange="changeDisplay()">
                     </div>
-                    <button>lock grid</button>                
+                    <button class="account-button">lock grid</button>                
                 </details>
-                <details>
+                <details class="set-div">
                     <summary>save</summary>
-                    <button onclick="save()">save</button>
+                    <button onclick="save()" class="account-button">save</button>
                 </details>
             </div>
         </div>    

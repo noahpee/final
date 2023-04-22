@@ -4,6 +4,8 @@ const example = document.getElementById("example-container")
 const sentence = document.getElementById("sentence-display")
 const grid = document.getElementById("tiles-grid")
 
+const voices = speechSynthesis.getVoices();
+
 let data;
 let user;
 let last;
@@ -40,20 +42,33 @@ function loadSettings() {
     } else {
         user = {
             name: "",
+            home: 0,
+            voice: 5,
             columns: 3,
             rows: 3,
             firstWords: [],
         }
         user.name = prompt("what is your name?")
+        let userString = JSON.stringify(user)
+        localStorage.setItem("user", userString)
     }
-    user.firstWords = data[0].array
+    user.firstWords = data[user.home].array
     data[549].text = user.name
     document.getElementById("rows-select").value = user.rows
     document.getElementById("columns-select").value = user.columns
-    document.getElementById("userName").innerText = `username: ${user.name}`
+    document.getElementById("userName").innerText = `username : ${user.name}`
+    populateVoiceList();
+        if (
+            typeof speechSynthesis !== "undefined" &&
+            speechSynthesis.onvoiceschanged !== undefined
+        ) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
 }
 
 function save() {
+
+    console.log(user, user.voice)
 
     let stringify = JSON.stringify(data);
     let userString = JSON.stringify(user)
@@ -88,19 +103,22 @@ function move() {
     if (event.target.id == "move-down") {
         sentenceNumber--
     } else {
+        last = folderNumber.sub.questions[sentenceNumber][folderNumber.sub.questions[sentenceNumber].length -1]
+        console.log(last)
         sentenceNumber++
     }
     currentWord = 0
-    exampleQuestion(folderNumber)    
+    exampleQuestion(folderNumber)
 }
 
 function back() {
 
     if (sentenceArray.length == 0) {
-        sentenceNumber = -1
-        exampleQuestion(folderNumber)
+        loadGrid(data[user.home].array, 0)
+        exampleQuestion(folderNumber, -1)
         return 
     } 
+    console.log("back")
     last = sentenceArray[sentenceArray.length -1]
     if (!data[last].sub) {
         sentence.removeChild(sentence.lastChild)
@@ -126,6 +144,13 @@ function clearAll() {
     lastWord = sentenceArray[sentenceArray.length -1]
     sentence.innerHTML = ""
     sentenceArray = []
+}
+
+function voiceChange() {
+    
+    let voiceSelect = document.getElementById("voiceSelect").value.split(" ")
+    user.voice = parseInt(voiceSelect[2])
+
 }
 
 function loadGrid(fromArray, current) {
@@ -220,13 +245,20 @@ function sentenceUpdate(idNumber) {
 
 function speak() {
 
-    let msg = new SpeechSynthesisUtterance()
-    for (let j = 0; j < sentenceArray.length; j++) {
+
+    let msg = ''
+        for (let j = 0; j < sentenceArray.length; j++) {
         if (!data[sentenceArray[j]].sub) {
-            msg.text += `${data[sentenceArray[j]].text} `
+            msg += `${data[sentenceArray[j]].text} `
         }
     }
-    window.speechSynthesis.speak(msg)
+
+    const voices = window.speechSynthesis.getVoices();
+const lastVoice = voices[user.voice];
+
+const utterance = new SpeechSynthesisUtterance(msg);
+utterance.voice = lastVoice; // change voice
+window.speechSynthesis.speak(utterance);
 }
 
 function changeOrder(current, id) {
@@ -331,6 +363,7 @@ function accountOpen() {
 
     if (document.getElementById("account-content").style.display == "") {
         document.getElementById("account-content").style.display = "block"
+        document.getElementById("menu-content").style.display = ""
     } else {
         document.getElementById("account-content").style.display = ""
     }
@@ -341,6 +374,7 @@ function menuOpen() {
 
     if (document.getElementById("menu-content").style.display == "") {
         document.getElementById("menu-content").style.display = "block"
+        document.getElementById("account-content").style.display = ""
     } else {
         document.getElementById("menu-content").style.display = ""
     }
@@ -349,6 +383,8 @@ function menuOpen() {
 function folderWord(fromArray, check) {
 
     if (nextWord != 0) {  
+
+        console.log(nextWord, last)
 
         fromArray.length = (user.rows*user.columns)
         
@@ -367,6 +403,9 @@ function folderWord(fromArray, check) {
             if (check == -1) {
                 return
             }
+            if (check == -2) {
+                console.log('zero')
+            }
             if (currentWord == sentenceArray.length -1) {
                 nextWord = folderNumber.sub.questions[sentenceNumber][currentWord]
                 if (fromArray.includes(nextWord)) {
@@ -377,7 +416,7 @@ function folderWord(fromArray, check) {
                     loadGrid(fromArray, sentenceArray[sentenceArray.length -1])
                     fromArray.splice(random, 1)
                 }
-            }
+            } 
         }
     } else {
         console.log('not folder')
